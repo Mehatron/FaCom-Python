@@ -1,3 +1,6 @@
 # Python compiled binarys
 *.pyc
 
+# Vim tmp swap files
+*.swp
+
