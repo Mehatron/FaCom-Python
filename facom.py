@@ -24,7 +24,10 @@ class Facom:
     def open(self, port, station_number = 0x01):
         'Open communication to Fatek PLC'
 
-        error = self.facom.FACOM_open(port, station_number);
+        c_port = ctypes.c_char_p(port);
+        c_station_number = ctypes.c_uint8(station_number);
+
+        error = self.facom.FACOM_open(c_port, c_station_number);
         if error < 0:
             self.is_open = False;
         else:
@@ -41,22 +44,26 @@ class Facom:
     def set_data_bits(self, data_bits):
         'Set number of data bits'
 
-        return self.facom.FACOM_setDataBits(data_bits);
+        c_data_bits = ctypes.c_int(data_bits);
+        return self.facom.FACOM_setDataBits(c_data_bits);
 
     def set_parity(self, parity):
         'Set parity'
 
-        return self.facom.FACOM_setParity(parity);
+        c_data_bits = ctypes.c_int(parity);
+        return self.facom.FACOM_setParity(c_parity);
 
     def set_stop_bits(self, stop_bits):
         'Set number of stop bits'
 
-        return self.facom.FACOM_setStopBits(parity);
+        c_stop_bits = ctypes.c_int(stop_bits);
+        return self.facom.FACOM_setStopBits(c_stop_bitsy);
 
     def set_baud_rate(self, baud_rate):
         'Set baud rate (speed)'
 
-        return self.facom.FACOM_setBaudRate(baud_rate);
+        c_baud_rate = ctypes.c_int(baud_rate);
+        return self.facom.FACOM_setBaudRate(c_baud_rate);
 
     def start(self):
         'Set PLC run mode to On'
@@ -71,7 +78,12 @@ class Facom:
     def set_discrete(self, discrete_type, discrete_number, action):
         'Set discrete'
 
-        return self.facom.FACOM_setDiscrete(discrete_type, discrete_number, action);
+        c_discrete_type = ctypes.c_uint8(discrete_type);
+        c_discrete_number = ctypes.c_int(discrete_number);
+        c_action = ctypes.c_uint8(action);
+        return self.facom.FACOM_setDiscrete(c_discrete_type,
+                                            c_discrete_number,
+                                            c_action);
 
     def set_discretes(self, discrete_type,
                             discrete_number,
@@ -79,9 +91,15 @@ class Facom:
                             data):
         'Set multiple continous discretes'
 
-        return self.facom.FACOM_setDiscretes(discrete_type,
-                                             discrete_number,
-                                             discrete_count,
+        count = discrete_count;
+        if count == 0:
+            count = 256;
+        c_discrete_type = ctypes.c_uint8(discrete_type);
+        c_discrete_number = ctypes.c_int(discrete_number);
+        c_discrete_count = ctypes.c_uint8(discrete_count);
+        return self.facom.FACOM_setDiscretes(c_discrete_type,
+                                             c_discrete_number,
+                                             c_discrete_count,
                                              data);
 
     def get_discretes(self, discrete_type,
@@ -90,8 +108,18 @@ class Facom:
                             data):
         'Get multiple continous discretes'
 
-        return self.facom.FACOM_getDiscretes(discrete_type,
-                                             discrete_number,
-                                             discrete_count,
-                                             data);
+        count = discrete_count;
+        if count == 0:
+            count = 256;
+        c_discrete_type = ctypes.c_uint8(discrete_type);
+        c_discrete_number = ctypes.c_int(discrete_number);
+        c_discrete_count = ctypes.c_uint8(discrete_count);
+        c_data = (ctypes.c_int8 * count)();
+        error = self.facom.FACOM_getDiscretes(c_discrete_type,
+                                              c_discrete_number,
+                                              c_discrete_count,
+                                              c_data);
+        if error == SUCCESS:
+            for byte in c_data:
+                data.append(byte);
 
