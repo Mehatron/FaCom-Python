@@ -122,4 +122,5 @@ class Facom:
         if error == SUCCESS:
             for byte in c_data:
                 data.append(byte);
+        return error;
 
