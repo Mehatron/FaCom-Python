@@ -115,6 +115,7 @@ class Facom:
         c_discrete_number = ctypes.c_int(discrete_number);
         c_discrete_count = ctypes.c_uint8(discrete_count);
         c_data = (ctypes.c_int8 * count)();
+        ctypes.cast(c_data, ctypes.POINTER(ctypes.c_int8));
         error = self.facom.FACOM_getDiscretes(c_discrete_type,
                                               c_discrete_number,
                                               c_discrete_count,
